@@ -174,6 +174,7 @@ pub trait ExportLanguage: 'static {
         commands: &[FunctionDataType],
         type_map: &TypeMap,
         cfg: &ExportConfig<Self::Config>,
+        internal_command_prefix: &String,
     ) -> Result<String, Self::Error>;
 
     /// Renders the output of [`globals`], [`render_functions`] and all dependant types into a TypeScript string.
@@ -182,6 +183,7 @@ pub trait ExportLanguage: 'static {
         events: &[EventDataType],
         type_map: &TypeMap,
         cfg: &ExportConfig<Self::Config>,
+        internal_command_prefix: &String,
     ) -> Result<String, Self::Error>;
 }
 
@@ -262,6 +264,7 @@ pub struct PluginBuilder<TLang: ExportLanguage, TCommands, TEvents> {
     commands: TCommands,
     events: TEvents,
     config: ExportConfig<TLang::Config>,
+    internal_command_prefix: String,
 }
 
 impl<TLang, TRuntime> Default for PluginBuilder<TLang, NoCommands<TRuntime>, NoEvents>
@@ -274,6 +277,7 @@ where
             commands: NoCommands(Default::default(), Default::default()),
             events: NoEvents,
             config: Default::default(),
+            internal_command_prefix: "".into()
         }
     }
 }
@@ -292,6 +296,7 @@ where
             commands: Commands(commands, Default::default()),
             events: self.events,
             config: self.config,
+            internal_command_prefix: self.internal_command_prefix,
         }
     }
 }
@@ -306,6 +311,7 @@ where
             events: Events(events),
             commands: self.commands,
             config: self.config,
+            internal_command_prefix: self.internal_command_prefix,
         }
     }
 }
@@ -328,6 +334,11 @@ where
 
     pub fn path(mut self, path: impl AsRef<Path>) -> Self {
         self.config.path = Some(path.as_ref().to_path_buf());
+        self
+    }
+
+    pub fn internal_command_prefix(mut self, prefix: &str) -> Self {
+        self.internal_command_prefix = prefix.into();
         self
     }
 }
@@ -416,6 +427,7 @@ where
             commands,
             config,
             events,
+            internal_command_prefix,
             ..
         } = self;
 
@@ -428,6 +440,7 @@ where
             &events,
             &collect_typemap(commands_type_map.iter().chain(events_type_map.iter())),
             &config,
+            &internal_command_prefix,
         )?;
 
         Ok((

@@ -19,8 +19,9 @@ pub fn render_all_parts<T: ExportLanguage<Config = specta::ts::ExportConfig>>(
     cfg: &ExportConfig,
     dependant_types: &str,
     globals: &str,
+    internal_command_prefix: &String,
 ) -> Result<String, T::Error> {
-    let commands = T::render_commands(commands, type_map, cfg)?;
+    let commands = T::render_commands(commands, type_map, cfg, internal_command_prefix)?;
     let events = T::render_events(events, type_map, cfg)?;
 
     Ok(formatdoc! {

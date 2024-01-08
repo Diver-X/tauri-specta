@@ -30,6 +30,7 @@ impl ExportLanguage for Language {
         commands: &[FunctionDataType],
         type_map: &TypeMap,
         cfg: &ExportConfig,
+        internal_command_prefix: &String,
     ) -> Result<String, Self::Error> {
         let commands = commands
             .iter()
@@ -111,6 +112,7 @@ impl ExportLanguage for Language {
         events: &[EventDataType],
         type_map: &TypeMap,
         cfg: &ExportConfig,
+        internal_command_prefix: &String,
     ) -> Result<String, Self::Error> {
         let dependant_types = type_map
             .iter()
@@ -118,6 +120,6 @@ impl ExportLanguage for Language {
             .collect::<Result<Vec<_>, _>>()
             .map(|v| v.join("\n"))?;
 
-        js_ts::render_all_parts::<Self>(commands, events, type_map, cfg, &dependant_types, GLOBALS)
+        js_ts::render_all_parts::<Self>(commands, events, type_map, cfg, &dependant_types, GLOBALS, internal_command_prefix)
     }
 }

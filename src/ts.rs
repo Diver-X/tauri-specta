@@ -34,6 +34,7 @@ impl ExportLanguage for Language {
         commands: &[FunctionDataType],
         type_map: &TypeMap,
         cfg: &ExportConfig,
+        internal_command_prefix: &String,
     ) -> Result<String, ExportError> {
         let commands = commands
             .iter()
@@ -42,6 +43,8 @@ impl ExportLanguage for Language {
                     .args
                     .iter()
                     .map(|(name, typ)| {
+                        let name = name.strip_prefix(internal_command_prefix).unwrap_or_else(|| name);
+
                         ts::datatype(&cfg.inner, typ, type_map)
                             .map(|ty| format!("{}: {}", name.to_lower_camel_case(), ty))
                     })
@@ -105,6 +108,7 @@ impl ExportLanguage for Language {
         events: &[EventDataType],
         type_map: &TypeMap,
         cfg: &ExportConfig,
+        internal_command_prefix: &String,
     ) -> Result<String, ExportError> {
         let dependant_types = type_map
             .iter()
@@ -112,6 +116,6 @@ impl ExportLanguage for Language {
             .collect::<Result<Vec<_>, _>>()
             .map(|v| v.join("\n"))?;
 
-        js_ts::render_all_parts::<Self>(commands, events, type_map, cfg, &dependant_types, GLOBALS)
+        js_ts::render_all_parts::<Self>(commands, events, type_map, cfg, &dependant_types, GLOBALS, internal_command_prefix)
     }
 }
