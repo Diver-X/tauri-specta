@@ -43,8 +43,6 @@ impl ExportLanguage for Language {
                     .args
                     .iter()
                     .map(|(name, typ)| {
-                        let name = name.strip_prefix(internal_command_prefix).unwrap_or_else(|| name);
-
                         ts::datatype(&cfg.inner, typ, type_map)
                             .map(|ty| format!("{}: {}", name.to_lower_camel_case(), ty))
                     })
@@ -61,9 +59,15 @@ impl ExportLanguage for Language {
 
                     builder.build()
                 };
+
+                let function_name =
+                    function.name.strip_prefix(internal_command_prefix)
+                        .unwrap_or_else(|| &function.name)
+                        .to_lower_camel_case();
+                
                 Ok(js_ts::function(
                     &docs,
-                    &function.name.to_lower_camel_case(),
+                    &function_name,
                     &arg_defs,
                     Some(&ret_type),
                     &js_ts::command_body(cfg, function, true),
