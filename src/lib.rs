@@ -256,6 +256,7 @@ pub struct ExportContext {
     pub events: BTreeMap<&'static str, DataType>,
     pub type_map: TypeMap,
     pub constants: HashMap<Cow<'static, str>, serde_json::Value>,
+    pub internal_command_prefix: Option<&'static str>,
 }
 
 /// Implemented for all languages which Tauri Specta supports exporting to.

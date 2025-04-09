@@ -90,6 +90,7 @@ pub struct Builder<R: Runtime = tauri::Wry> {
     event_sids: BTreeSet<SpectaID>,
     types: TypeMap,
     constants: HashMap<Cow<'static, str>, serde_json::Value>,
+    internal_command_prefix: Option<&'static str>,
 }
 
 impl<R: Runtime> Default for Builder<R> {
@@ -103,6 +104,7 @@ impl<R: Runtime> Default for Builder<R> {
             event_sids: Default::default(),
             types: TypeMap::default(),
             constants: HashMap::default(),
+            internal_command_prefix: None,
         }
     }
 }
@@ -119,6 +121,13 @@ impl<R: Runtime> Builder<R> {
     pub fn plugin_name(self, plugin_name: &'static str) -> Self {
         Self {
             plugin_name: Some(plugin_name),
+            ..self
+        }
+    }
+
+    pub fn internal_command_prefix(self, prefix: &'static str) -> Self {
+        Self {
+            internal_command_prefix: Some(prefix),
             ..self
         }
     }
@@ -268,7 +277,7 @@ impl<R: Runtime> Builder<R> {
     /// tauri::Builder::default()
     ///     .setup(move |app| {
     ///         builder.mount_events(app);
-    ///             
+    ///
     ///         Ok(())
     ///     })
     ///     // on an actual app, remove the string argument
@@ -320,6 +329,7 @@ impl<R: Runtime> Builder<R> {
             type_map: self.types.clone(),
             constants: self.constants.clone(),
             plugin_name: self.plugin_name,
+            internal_command_prefix: self.internal_command_prefix,
         })
     }
 
