@@ -59,9 +59,15 @@ fn render_commands(ts: &Typescript, cfg: &ExportContext) -> Result<String, Expor
 
                 builder.build()
             };
+
+            let function_name = &function
+                .name()
+                .strip_prefix(cfg.internal_command_prefix.unwrap_or(""))
+                .unwrap_or_else(|| &function.name());
+
             Ok(js_ts::function(
                 &docs,
-                &function.name().to_lower_camel_case(),
+                &function_name.to_lower_camel_case(),
                 &arg_defs,
                 Some(&ret_type),
                 &js_ts::command_body(&cfg.plugin_name, function, true, cfg.error_handling),
